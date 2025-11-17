@@ -1,3 +1,16 @@
+-------------------------------------------------------------------------------
+-- Projeto: Projeto Genius
+-- Curso: Engenharia de Sistemas Turma PN5
+--
+-- Integrantes:
+--   Guilherme Fachinelli
+--   Rafael Campello Soares
+--   Gustavo Silvestre Barroso
+--
+-- Descrição:
+--   Arquivo pertencente ao projeto digital baseado no jogo Genius.
+--   Desenvolvido para fins acadêmicos na disciplina de Sistemas Digitais.
+-------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
