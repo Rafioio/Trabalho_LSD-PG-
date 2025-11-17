@@ -29,26 +29,22 @@ begin
         variable index    : integer;
     begin
         if rising_edge(clk) then
-            --------------------------------------------------------------------
-            -- RESET → VOLTA PARA A BASE ORIGINAL
-            --------------------------------------------------------------------
+    
             if rst = '1' then
                 current_base <= BASE_ORIGINAL;
                 ready_int    <= '0';
 
-            --------------------------------------------------------------------
-            -- FUNCIONAMENTO NORMAL
-            --------------------------------------------------------------------
+          
             else
                 ready_int <= '0';
 
-                -- DEBUG CRÍTICO: Monitora o enable
+        
                 if enable = '1' then
                 end if;
 
                 if enable = '1' then
                     
-                    -- REORDENAR USANDO current_base
+                
                     for i in 0 to 6 loop
                         index := to_integer(unsigned(indice_vector(i))) - 1;
 
@@ -59,11 +55,9 @@ begin
                         end if;
                     end loop;
 
-                    -- SAÍDA
                     random_vector <= new_base;
                     ready_int     <= '1';
 
-                    -- ATUALIZA A BASE PARA O PRÓXIMO PASSO
                     current_base <= new_base;
 
                 end if;

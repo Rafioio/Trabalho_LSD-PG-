@@ -6,7 +6,7 @@ entity Controller is
         clk           : in  std_logic;
         rst           : in  std_logic;
         start         : in  std_logic;
-        fsm_off    : out std_logic;  
+        fsm_off       : out std_logic;  
         indice_ready  : in  std_logic;
         reorder_ready : in  std_logic;
         load_seed     : out std_logic;
@@ -23,14 +23,9 @@ architecture Behavioral of Controller is
 
 begin
 
-    --------------------------------------------------------------------
-    -- fsm_off depende SOMENTE do estado
-    --------------------------------------------------------------------
+
     fsm_off <= '1' when state = S_IDLE else '0';
 
-    --------------------------------------------------------------------
-    -- FSM
-    --------------------------------------------------------------------
     process(clk, rst)
     begin
         if rst = '1' then
@@ -49,9 +44,6 @@ begin
 
             case state is
 
-                ----------------------------------------------------------------
-                -- ESTADO OFF (LFSR de seed roda livre aqui)
-                ----------------------------------------------------------------
                 when S_IDLE =>
                     if start = '1' and prev_start = '0' then
                         load_seed <= '1'; -- captura seed aqui

@@ -29,9 +29,6 @@ architecture wiring of Sequence_design is
 
 begin
 
-    ------------------------------------------------------------------
-    -- Controller
-    ------------------------------------------------------------------
     u_controller: entity work.Controller
         port map (
             clk           => clk,
@@ -45,9 +42,6 @@ begin
             global_ready  => ready_out
         );
 
-    ------------------------------------------------------------------
-    -- Seed Generator (mantendo interface original)
-    ------------------------------------------------------------------
     u_seed: entity work.Seed_generator
         port map (
             clk        => clk,
@@ -57,9 +51,7 @@ begin
             seed       => seed
         );
 
-    ------------------------------------------------------------------
-    -- LFSR 3 bits
-    ------------------------------------------------------------------
+
     u_lfsr: entity work.LFSR_3bits
         port map (
             clk                 => clk,
@@ -71,9 +63,6 @@ begin
             indice_vector_ready => indice_ready
         );
 
-    ------------------------------------------------------------------
-    -- Reorder Vector
-    ------------------------------------------------------------------
     u_reorder: entity work.Reorder_Vector
         port map (
             clk           => clk,
@@ -84,9 +73,6 @@ begin
             ready         => reorder_ready
         );
 
-    ------------------------------------------------------------------
-    -- Saída final
-    ------------------------------------------------------------------
     base_out <= random_vector;
 
 end wiring;

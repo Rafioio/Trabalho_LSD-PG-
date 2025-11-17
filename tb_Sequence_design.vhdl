@@ -8,9 +8,6 @@ end tb_Sequence_design;
 
 architecture sim of tb_Sequence_design is
 
-    --------------------------------------------------------------------
-    -- Função auxiliar para converter std_logic_vector → string
-    --------------------------------------------------------------------
     function slv_to_string(slv: std_logic_vector) return string is
         variable result : string(1 to slv'length);
     begin
@@ -27,9 +24,6 @@ architecture sim of tb_Sequence_design is
         return result;
     end function;
 
-    --------------------------------------------------------------------
-    -- Sinais
-    --------------------------------------------------------------------
     constant CLK_PERIOD : time := 10 ns;
 
     signal clk      : std_logic := '0';
@@ -40,9 +34,6 @@ architecture sim of tb_Sequence_design is
 
 begin
 
-    --------------------------------------------------------------------
-    -- DUT
-    --------------------------------------------------------------------
     uut: entity work.Sequence_design
         port map (
             clk       => clk,
@@ -52,9 +43,6 @@ begin
             ready_out => done
         );
 
-    --------------------------------------------------------------------
-    -- Clock
-    --------------------------------------------------------------------
     clk_process : process
     begin
         while true loop
@@ -63,9 +51,6 @@ begin
         end loop;
     end process;
 
-    --------------------------------------------------------------------
-    -- Estímulos
-    --------------------------------------------------------------------
     stim_proc : process
     begin
         -- Reset
@@ -82,9 +67,6 @@ begin
         wait for 100 ns;
 
 
-
-
-        -- Esperar o módulo terminar (com timeout para evitar loop infinito)
         wait until done = '1' for 100000 ns;
         
         if done = '1' then
