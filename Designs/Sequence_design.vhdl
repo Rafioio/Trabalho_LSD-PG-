@@ -5,30 +5,37 @@ use work.Types.all;
 
 entity Sequence_design is
     Port (
-        clk      : in  std_logic;
-        rst      : in  std_logic;
-        start    : in  std_logic;
-        base_out : out array_3X7bits;
-        ready_out : out std_logic
+        clk        : in  std_logic;
+        rst        : in  std_logic;
+        start      : in  std_logic;
+        ready_out  : out std_logic;
+        leds_out   : out std_logic_vector(2 downto 0);
+        show_done  : out std_logic
     );
 end Sequence_design;
 
 architecture wiring of Sequence_design is
 
-    signal seed              : std_logic_vector(2 downto 0);
+    signal seed            : std_logic_vector(2 downto 0);
     signal fsm_off         : std_logic := '0';
-    signal load_seed         : std_logic := '0';
-    signal enable_lfsr       : std_logic := '0';
-    signal indice_vector     : array_3X7bits;
-    signal indice_ready      : std_logic;
-    signal random_vector     : array_3X7bits;
-    signal reorder_ready     : std_logic;
-    
-    -- Sinal interno para o fsm_off do Seed_generator
-    signal seed_gen_save     : std_logic := '0';
+    signal load_seed       : std_logic := '0';
+    signal enable_lfsr     : std_logic := '0';
+
+    signal indice_vector   : array_3X7bits;
+    signal indice_ready    : std_logic;
+
+    signal random_vector   : array_3X7bits;
+    signal reorder_ready   : std_logic;
+
+    signal start_show      : std_logic;
+    signal show_done_int   : std_logic;
+    signal show_leds       : std_logic_vector(2 downto 0);
 
 begin
 
+    ------------------------------------------------------------------
+    -- Controller
+    ------------------------------------------------------------------
     u_controller: entity work.Controller
         port map (
             clk           => clk,
@@ -36,22 +43,29 @@ begin
             start         => start,
             indice_ready  => indice_ready,
             reorder_ready => reorder_ready,
-            fsm_off     => fsm_off,
+            show_done     => show_done_int,
+            start_show    => start_show,
+            fsm_off       => fsm_off,
             load_seed     => load_seed,
             enable_lfsr   => enable_lfsr,
             global_ready  => ready_out
         );
 
+    ------------------------------------------------------------------
+    -- Seed Generator
+    ------------------------------------------------------------------
     u_seed: entity work.Seed_generator
         port map (
-            clk        => clk,
-            rst        => rst,
-            start      => start,       -- Mantém interface original
-            fsm_off  => fsm_off,   -- Usa o fsm_off do controller
-            seed       => seed
+            clk      => clk,
+            rst      => rst,
+            start    => start,
+            fsm_off  => fsm_off,
+            seed     => seed
         );
 
-
+    ------------------------------------------------------------------
+    -- LFSR
+    ------------------------------------------------------------------
     u_lfsr: entity work.LFSR_3bits
         port map (
             clk                 => clk,
@@ -63,6 +77,9 @@ begin
             indice_vector_ready => indice_ready
         );
 
+    ------------------------------------------------------------------
+    -- Reorder_Vector
+    ------------------------------------------------------------------
     u_reorder: entity work.Reorder_Vector
         port map (
             clk           => clk,
@@ -73,6 +90,26 @@ begin
             ready         => reorder_ready
         );
 
-    base_out <= random_vector;
+    ------------------------------------------------------------------
+    -- Show_random_vector
+    ------------------------------------------------------------------
+    u_show: entity work.Show_random_vector
+        generic map (
+            DELAY_CYCLES => 30
+        )
+        port map (
+            clk           => clk,
+            rst           => rst,
+            start_show    => start_show,
+            random_vector => random_vector,
+            led_sel       => show_leds,
+            done          => show_done_int
+        );
+
+    ------------------------------------------------------------------
+    -- SAÍDA FINAL
+    ------------------------------------------------------------------
+    leds_out <= show_leds;
+    show_done <= show_done_int;
 
 end wiring;

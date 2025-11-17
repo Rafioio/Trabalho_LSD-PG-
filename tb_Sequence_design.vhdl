@@ -26,11 +26,12 @@ architecture sim of tb_Sequence_design is
 
     constant CLK_PERIOD : time := 10 ns;
 
-    signal clk      : std_logic := '0';
-    signal rst      : std_logic := '0';
-    signal start    : std_logic := '0';
-    signal base_out : array_3X7bits;
-    signal done     : std_logic;
+    signal clk        : std_logic := '0';
+    signal rst        : std_logic := '0';
+    signal start      : std_logic := '0';
+    signal leds_out   : std_logic_vector(2 downto 0);  
+    signal ready_out  : std_logic;
+    signal show_done  : std_logic;
 
 begin
 
@@ -39,8 +40,9 @@ begin
             clk       => clk,
             rst       => rst,
             start     => start,
-            base_out  => base_out,
-            ready_out => done
+            ready_out => ready_out,    
+            leds_out  => leds_out,     
+            show_done => show_done     
         );
 
     clk_process : process
@@ -53,32 +55,25 @@ begin
 
     stim_proc : process
     begin
+        report "=== Teste Sequence_design iniciado ===";
+        
         -- Reset
         rst <= '1';
         wait for 30 ns;
         rst <= '0';
-        wait for 721 ns;
+        wait for 66 ns;
 
         -- Pulso de start
         start <= '1';
         wait for CLK_PERIOD;
         start <= '0';
 
-        wait for 100 ns;
-
-
-        wait until done = '1' for 100000 ns;
+        -- Espera o processamento completo
+        wait until show_done = '1' for 200000 ns; 
         
-        if done = '1' then
-            -- Impressão do resultado
-            report "=== Resultado base_out ===";
-            for i in base_out'range loop
-                report "base_out(" & integer'image(i) & ") = " &
-                       slv_to_string(base_out(i)) & " (" & 
-                       integer'image(to_integer(unsigned(base_out(i)))) & ")";
-            end loop;
-            
-            -- Verificação básica
+        if show_done = '1' then
+            report "Processamento completo!";
+            report "LEDs finais: " & slv_to_string(leds_out);
         else
             report "ERRO: Módulo não completou dentro do tempo esperado!" severity error;
         end if;
