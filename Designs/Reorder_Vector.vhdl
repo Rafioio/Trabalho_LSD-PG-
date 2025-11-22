@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 use work.Types.all;
 
 entity Reorder_Vector is
-    Port (
+    port (
         clk           : in  std_logic;
         rst           : in  std_logic;
         enable        : in  std_logic;
@@ -14,57 +14,69 @@ entity Reorder_Vector is
     );
 end Reorder_Vector;
 
-architecture Behavioral of Reorder_Vector is
-    
+architecture rtl of Reorder_Vector is
+
     constant BASE_ORIGINAL : array_3X7bits :=
         ("001", "010", "011", "100", "101", "110", "111");
 
     signal current_base : array_3X7bits := BASE_ORIGINAL;
-    signal ready_int    : std_logic := '0';
+    signal random_reg   : array_3X7bits := BASE_ORIGINAL;
+    signal ready_reg    : std_logic := '0';
+
+    signal next_base  : array_3X7bits;
+    signal next_ready : std_logic;
 
 begin
 
-    process(clk)
-        variable new_base : array_3X7bits;
-        variable index    : integer;
+    -------------------------------------------------------
+    -- Lógica combinacional (sensibilidade explícita)
+    -------------------------------------------------------
+    combinational : process(current_base, enable, indice_vector)
+        variable idx : integer;
+    begin
+        next_base  <= current_base;
+        next_ready <= '0';
+
+        if enable = '1' then
+            for i in 0 to 6 loop
+                idx := to_integer(unsigned(indice_vector(i))) - 1;
+
+                if idx >= 0 and idx <= 6 then
+                    next_base(i) <= current_base(idx);
+                else
+                    next_base(i) <= "000";
+                end if;
+            end loop;
+
+            next_ready <= '1';
+        end if;
+    end process;
+
+    -------------------------------------------------------
+    -- Lógica sequencial
+    -------------------------------------------------------
+    sequential : process(clk)
     begin
         if rising_edge(clk) then
-    
+
             if rst = '1' then
                 current_base <= BASE_ORIGINAL;
-                ready_int    <= '0';
+                random_reg   <= BASE_ORIGINAL;
+                ready_reg    <= '0';
 
-          
             else
-                ready_int <= '0';
-
-        
-                if enable = '1' then
-                end if;
+                current_base <= next_base;
 
                 if enable = '1' then
-                    
-                
-                    for i in 0 to 6 loop
-                        index := to_integer(unsigned(indice_vector(i))) - 1;
-
-                        if index >= 0 and index <= 6 then
-                            new_base(i) := current_base(index);
-                        else
-                            new_base(i) := "000";
-                        end if;
-                    end loop;
-
-                    random_vector <= new_base;
-                    ready_int     <= '1';
-
-                    current_base <= new_base;
-
+                    random_reg <= next_base;
                 end if;
+
+                ready_reg <= next_ready;
             end if;
         end if;
     end process;
 
-    ready <= ready_int;
+    random_vector <= random_reg;
+    ready         <= ready_reg;
 
-end Behavioral;
+end rtl;

@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 use work.Types.all;
 
 entity Sequence_design is
-    Port (
+    port (
         clk        : in  std_logic;
         rst        : in  std_logic;
         start      : in  std_logic;
@@ -14,36 +14,48 @@ entity Sequence_design is
     );
 end Sequence_design;
 
-architecture wiring of Sequence_design is
 
+architecture rtl of Sequence_design is
+
+    ------------------------------------------------------------------
+    -- INTERNAL SIGNALS
+    ------------------------------------------------------------------
+
+    -- Seed
     signal seed            : std_logic_vector(2 downto 0);
-    signal fsm_off         : std_logic := '0';
-    signal load_seed       : std_logic := '0';
-    signal enable_lfsr     : std_logic := '0';
 
+    -- Controller signals
+    signal fsm_off         : std_logic;
+    signal load_seed       : std_logic;
+    signal enable_lfsr     : std_logic;
+
+    -- LFSR output
     signal indice_vector   : array_3X7bits;
     signal indice_ready    : std_logic;
 
+    -- Reordered vector
     signal random_vector   : array_3X7bits;
     signal reorder_ready   : std_logic;
 
+    -- Show module outputs
     signal start_show      : std_logic;
-    signal show_done_int   : std_logic;
+    signal show_done_i     : std_logic;
     signal show_leds       : std_logic_vector(2 downto 0);
+
 
 begin
 
     ------------------------------------------------------------------
-    -- Controller
+    -- CONTROLLER
     ------------------------------------------------------------------
-    u_controller: entity work.Controller
+    controller_inst : entity work.Controller
         port map (
             clk           => clk,
             rst           => rst,
             start         => start,
             indice_ready  => indice_ready,
             reorder_ready => reorder_ready,
-            show_done     => show_done_int,
+            show_done     => show_done_i,
             start_show    => start_show,
             fsm_off       => fsm_off,
             load_seed     => load_seed,
@@ -51,22 +63,24 @@ begin
             global_ready  => ready_out
         );
 
-    ------------------------------------------------------------------
-    -- Seed Generator
-    ------------------------------------------------------------------
-    u_seed: entity work.Seed_generator
-        port map (
-            clk      => clk,
-            rst      => rst,
-            start    => start,
-            fsm_off  => fsm_off,
-            seed     => seed
-        );
 
     ------------------------------------------------------------------
-    -- LFSR
+    -- SEED GENERATOR
     ------------------------------------------------------------------
-    u_lfsr: entity work.LFSR_3bits
+    seed_gen_inst : entity work.Seed_generator
+        port map (
+            clk     => clk,
+            rst     => rst,
+            start   => start,
+            fsm_off => fsm_off,
+            seed    => seed
+        );
+
+
+    ------------------------------------------------------------------
+    -- LFSR 3 BITS
+    ------------------------------------------------------------------
+    lfsr_inst : entity work.LFSR_3bits
         port map (
             clk                 => clk,
             rst                 => rst,
@@ -77,10 +91,11 @@ begin
             indice_vector_ready => indice_ready
         );
 
+
     ------------------------------------------------------------------
-    -- Reorder_Vector
+    -- REORDER VECTOR
     ------------------------------------------------------------------
-    u_reorder: entity work.Reorder_Vector
+    reorder_inst : entity work.Reorder_Vector
         port map (
             clk           => clk,
             rst           => rst,
@@ -90,10 +105,11 @@ begin
             ready         => reorder_ready
         );
 
+
     ------------------------------------------------------------------
-    -- Show_random_vector
+    -- SHOW RANDOM VECTOR
     ------------------------------------------------------------------
-    u_show: entity work.Show_random_vector
+    show_inst : entity work.Show_random_vector
         generic map (
             DELAY_CYCLES => 30
         )
@@ -103,13 +119,14 @@ begin
             start_show    => start_show,
             random_vector => random_vector,
             led_sel       => show_leds,
-            done          => show_done_int
+            done          => show_done_i
         );
 
+
     ------------------------------------------------------------------
-    -- SAÍDA FINAL
+    -- FINAL OUTPUTS
     ------------------------------------------------------------------
     leds_out <= show_leds;
-    show_done <= show_done_int;
+    show_done <= show_done_i;
 
-end wiring;
+end rtl;
