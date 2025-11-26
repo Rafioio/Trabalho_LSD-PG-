@@ -61,7 +61,7 @@ begin
         rst <= '1';
         wait for 30 ns;
         rst <= '0';
-        wait for 26 ns;
+        wait for 60 ns;
 
         -- Pulso de start
         start <= '1';
@@ -69,11 +69,15 @@ begin
         start <= '0';
         wait for 4 us;
 
-        -- Reset
-        rst <= '1';
-        wait for 30 ns;
-        rst <= '0';
-        wait for 48 ns;
+        wait for 70 ns;
+
+        -- Pulso de start
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+        wait for 4 us;
+
+        wait for 70 ns;
 
         -- Pulso de start
         start <= '1';
