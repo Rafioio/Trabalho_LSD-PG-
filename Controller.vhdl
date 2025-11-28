@@ -64,6 +64,7 @@ begin
         enable_lfsr  <= '0';
         global_ready <= '0';
         fsm_off      <= '0';
+        next_state   <= state;  -- Mantém estado atual por padrão
 
         case state is
 

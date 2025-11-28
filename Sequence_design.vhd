@@ -28,11 +28,11 @@ architecture rtl of Sequence_design is
     signal enable_lfsr     : std_logic;
 
     -- LFSR output (21 bits por posição)
-    signal indice_vector   : std_logic_vector (20 downto 0);
+    signal indice_vector   : std_logic_vector(20 downto 0);
     signal indice_ready    : std_logic;
 
     -- Reordered vector (21 bits por posição)
-    signal random_vector   : std_logic_vector (20 downto 0);
+    signal random_vector   : std_logic_vector(20 downto 0);
     signal reorder_ready   : std_logic;
 
 begin
@@ -91,10 +91,10 @@ begin
             random_vector => random_vector,
             ready         => reorder_ready
         );
+
     ------------------------------------------------------------------
     -- FINAL OUTPUTS
     ------------------------------------------------------------------
-
     leds_out <= random_vector;
     reorder_done <= reorder_ready;
 
