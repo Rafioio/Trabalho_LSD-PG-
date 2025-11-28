@@ -45,7 +45,7 @@ begin
             case current_state is
                 when IDLE =>
                     leds_reg <= (others => '0');
-                    comparison_done_reg <= '0';
+                    comparison_done_reg <= '0';  -- IMPORTANTE: Reset do sinal done
                     blink_counter <= 0;
                     timer <= (others => '0');
                     
@@ -60,27 +60,25 @@ begin
                         current_state <= WIN;
                         timer <= (others => '0');
                         blink_counter <= 0;
-                        leds_reg <= "1111111";  -- Todos LEDs acesos inicialmente
+                        leds_reg <= "1111111";
                     else
                         current_state <= LOSE;
                         timer <= (others => '0');
-                        -- Padrão 1010101 para derrota
                         leds_reg <= "1010101";
                     end if;
                     
                 when WIN =>
-                    -- Efeito de piscar (usando tempo do Controller)
+                    -- Efeito de piscar
                     if timer < unsigned(win_blink_time) then
                         timer <= timer + 1;
-                        leds_reg <= "1111111";  -- LEDs acesos
+                        leds_reg <= "1111111";
                     elsif timer < (unsigned(win_blink_time) * 2) then
                         timer <= timer + 1;
-                        leds_reg <= "0000000";  -- LEDs apagados
+                        leds_reg <= "0000000";
                     else
                         timer <= (others => '0');
                         blink_counter <= blink_counter + 1;
                         
-                        -- Pisca 4 vezes (2 ciclos completos)
                         if blink_counter >= 3 then
                             current_state <= FINISHED;
                             leds_reg <= "0000000";
@@ -88,7 +86,7 @@ begin
                     end if;
                     
                 when LOSE =>
-                    -- Mostra padrão 1010101 por tempo configurável
+                    -- Mostra padrão 1010101
                     leds_reg <= "1010101";
                     
                     if timer < unsigned(lose_display_time) then
@@ -99,21 +97,12 @@ begin
                     end if;
                     
                 when FINISHED =>
-                    comparison_done_reg <= '1';
+                    comparison_done_reg <= '1';  -- AVISA que terminou
                     leds_reg <= "0000000";
                     
-                    -- CORREÇÃO: Sai após tempo fixo OU reset
-                    if timer < 5000000 then  -- 0.1 segundos para estabilização
-                        timer <= timer + 1;
-                    else
-                        current_state <= IDLE;
-                        comparison_done_reg <= '0';
-                    end if;
-                    
-                    if reset = '1' then
-                        current_state <= IDLE;
-                        comparison_done_reg <= '0';
-                    end if;
+                    -- CORREÇÃO CRÍTICA: Permanece aqui apenas um ciclo
+                    -- e volta para IDLE automaticamente
+                    current_state <= IDLE;
                     
             end case;
         end if;
