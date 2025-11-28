@@ -1,0 +1,16 @@
+Analysis & Synthesis Status : Successful - Fri Nov 28 15:17:44 2025
+Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Standard Edition
+Revision Name : GeniusProject
+Top-level Entity Name : TopLevel
+Family : MAX 10
+Total logic elements : 541
+    Total combinational functions : 516
+    Dedicated logic registers : 299
+Total registers : 299
+Total pins : 20
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0
+UFM blocks : 0
+ADC blocks : 0

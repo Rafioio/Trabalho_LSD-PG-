@@ -1,0 +1,28 @@
+
+State Machine - |TopLevel|Show_Sequence:u_show_sequence|current_state
+Name current_state.FINISHED current_state.PAUSE current_state.SHOW_LED current_state.IDLE 
+current_state.IDLE 0 0 0 0 
+current_state.SHOW_LED 0 0 1 1 
+current_state.PAUSE 0 1 0 1 
+current_state.FINISHED 1 0 0 1 
+
+State Machine - |TopLevel|Comparator:u_comparator|current_state
+Name current_state.FINISHED current_state.LOSE current_state.WIN current_state.COMPARING current_state.IDLE 
+current_state.IDLE 0 0 0 0 0 
+current_state.COMPARING 0 0 0 1 1 
+current_state.WIN 0 0 1 0 1 
+current_state.LOSE 0 1 0 0 1 
+current_state.FINISHED 1 0 0 0 1 
+
+State Machine - |TopLevel|Controller:u_controller|estado_input
+Name estado_input.COMPLETO estado_input.CAPTURANDO estado_input.AGUARDA_START 
+estado_input.AGUARDA_START 0 0 0 
+estado_input.CAPTURANDO 0 1 1 
+estado_input.COMPLETO 1 0 1 
+
+State Machine - |TopLevel|Controller:u_controller|system_state
+Name system_state.COMPARISON_PHASE system_state.INPUT_PHASE system_state.SHOW_SEQUENCE system_state.WAITING_START 
+system_state.WAITING_START 0 0 0 0 
+system_state.SHOW_SEQUENCE 0 0 1 1 
+system_state.INPUT_PHASE 0 1 0 1 
+system_state.COMPARISON_PHASE 1 0 0 1 
