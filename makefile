@@ -3,16 +3,14 @@ TB := tb_Sequence_design
 STOP := 200000ns
 SYN := -fsynopsys
 WAVE := wave.vcd
-DESIGN_DIR := Designs
 
 # Arquivos na ordem de compilação
-FILES := $(DESIGN_DIR)/Types.vhdl \
-         $(DESIGN_DIR)/Seed_generator.vhdl \
-         $(DESIGN_DIR)/LFSR_3bits.vhdl \
-         $(DESIGN_DIR)/Reorder_Vector.vhdl \
-		 $(DESIGN_DIR)/Show_random_vector.vhdl \
-         $(DESIGN_DIR)/Controller.vhdl \
-         $(DESIGN_DIR)/Sequence_design.vhdl \
+FILES := $ Seed_generator.vhdl \
+         $ LFSR_3bits.vhd \
+         $ Reorder_Vector.vhdl \
+		 $ Show_random_vector.vhd \
+         $ Controller.vhdl \
+         $ Sequence_design.vhd \
          $(TB).vhdl
 
 all: run

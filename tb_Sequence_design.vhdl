@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use work.Types.all;
 
 entity tb_Sequence_design is
 end tb_Sequence_design;
@@ -29,7 +28,7 @@ architecture sim of tb_Sequence_design is
     signal clk        : std_logic := '0';
     signal rst        : std_logic := '0';
     signal start      : std_logic := '0';
-    signal leds_out   : std_logic_vector(2 downto 0);  
+    signal leds_out   : std_logic_vector(20 downto 0);  
     signal ready_out  : std_logic;
     signal show_done  : std_logic;
 
