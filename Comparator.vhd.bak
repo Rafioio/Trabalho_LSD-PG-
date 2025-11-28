@@ -1,0 +1,109 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Comparator is
+    Port (
+        clk        : in  STD_LOGIC;
+        reset      : in  STD_LOGIC;
+        check_btn  : in  STD_LOGIC;                    -- Botão para validar a resposta
+        user_input : in  STD_LOGIC_VECTOR(20 downto 0); -- Vetor resultado do usuário (21 bits)
+        leds_out   : out STD_LOGIC_VECTOR(6 downto 0);  -- Saída para LEDs físicos
+        comparison_done : out STD_LOGIC                 -- Sinal indicando que comparação foi finalizada
+    );
+end Comparator;
+
+architecture RTL of Comparator is
+    -- Estados da FSM
+    type state_type is (S_IDLE, S_CHECK, S_WIN, S_LOSE);
+    signal current_state : state_type;
+
+    -- SEQUÊNCIA FIXA PARA COMPARAÇÃO (sequência correta: SW3->SW1->SW5->SW0->SW6->SW2->SW4)
+    -- Codificação: cada switch é representado por 3 bits (switch_position + 1)
+    constant CORRECT_SEQUENCE : std_logic_vector(20 downto 0) := 
+        "100" & "010" & "110" & "001" & "111" & "011" & "101"; -- 21 bits
+    
+    -- Timer para controlar o tempo nos estados WIN/LOSE
+    signal timer : unsigned(7 downto 0); 
+    
+    -- Contador para piscar os LEDs no estado WIN
+    signal blink_counter : unsigned(23 downto 0);
+    signal blink_toggle : STD_LOGIC;
+
+begin
+
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            current_state <= S_IDLE;
+            leds_out <= (others => '0');
+            timer <= (others => '0');
+            blink_counter <= (others => '0');
+            blink_toggle <= '0';
+            comparison_done <= '0';
+            
+        elsif rising_edge(clk) then
+            comparison_done <= '0'; -- Default
+            
+            case current_state is
+                
+                -- Estado de Espera (aguardando comando para comparar)
+                when S_IDLE =>
+                    leds_out <= (others => '0'); -- LEDs apagados
+                    timer <= to_unsigned(100, timer'length); -- ~1 segundo a 100MHz
+                    blink_counter <= (others => '0');
+                    blink_toggle <= '0';
+                    
+                    if check_btn = '1' then
+                        current_state <= S_CHECK;
+                    end if;
+
+                -- Estado de Comparação
+                when S_CHECK =>
+                    if user_input = CORRECT_SEQUENCE then
+                        current_state <= S_WIN;  -- Sequência correta -> Vitória
+                    else
+                        current_state <= S_LOSE; -- Sequência incorreta -> Derrota
+                    end if;
+
+                -- Estado de Vitória (pisca todos os LEDs)
+                when S_WIN =>
+                    -- Contador para piscar a ~2Hz (50M clocks = 0.5s)
+                    if blink_counter < 50000000 then
+                        blink_counter <= blink_counter + 1;
+                    else
+                        blink_counter <= (others => '0');
+                        blink_toggle <= not blink_toggle;
+                    end if;
+                    
+                    if blink_toggle = '1' then
+                        leds_out <= "1111111"; -- Todos LEDs acesos
+                    else
+                        leds_out <= "0000000"; -- Todos LEDs apagados
+                    end if;
+                    
+                    -- Contagem do tempo (permanece por ~3 segundos)
+                    if timer > 0 then
+                        timer <= timer - 1;
+                    else
+                        current_state <= S_IDLE;
+                        comparison_done <= '1'; -- Sinaliza que terminou
+                    end if;
+
+                -- Estado de Derrota (acende todos os LEDs permanentemente)
+                when S_LOSE =>
+                    leds_out <= "1111111"; -- Todos LEDs acesos (não piscam)
+                    
+                    -- Contagem do tempo (permanece por ~3 segundos)
+                    if timer > 0 then
+                        timer <= timer - 1;
+                    else
+                        current_state <= S_IDLE;
+                        comparison_done <= '1'; -- Sinaliza que terminou
+                    end if;
+                    
+            end case;
+        end if;
+    end process;
+
+end RTL;

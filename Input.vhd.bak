@@ -1,0 +1,60 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity Input is
+    Port (
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        inicia_Input : in STD_LOGIC;
+        sw : in STD_LOGIC_VECTOR(6 downto 0);
+        ativado : out STD_LOGIC_VECTOR(2 downto 0)
+    );
+end Input;
+
+architecture RTL of Input is
+    signal sw_prev : STD_LOGIC_VECTOR(6 downto 0);
+    signal sw_curr : STD_LOGIC_VECTOR(6 downto 0);
+    signal ativado_r : STD_LOGIC_VECTOR(2 downto 0);
+
+begin
+    ativado <= ativado_r;
+
+    process(clk, reset)
+        variable new_code : STD_LOGIC_VECTOR(2 downto 0);
+    begin
+        if reset = '1' then
+            sw_prev <= (others => '0');
+            sw_curr <= (others => '0');
+            ativado_r <= "000";
+        elsif rising_edge(clk) then
+            if inicia_Input = '1' then
+                sw_prev <= sw_curr;
+                sw_curr <= sw;
+
+                new_code := "000";
+                for idx in 0 to 6 loop
+                    if (sw(idx) = '1') and (sw_prev(idx) = '0') then
+                        case idx is
+                            when 0 => new_code := "001";
+                            when 1 => new_code := "010";
+                            when 2 => new_code := "011";
+                            when 3 => new_code := "100";
+                            when 4 => new_code := "101";
+                            when 5 => new_code := "110";
+                            when 6 => new_code := "111";
+                            when others => new_code := "000";
+                        end case;
+                        exit;
+                    end if;
+                end loop;
+                ativado_r <= new_code;
+            else
+                ativado_r <= "000";
+                sw_prev <= (others => '0');
+                sw_curr <= (others => '0');
+            end if;
+        end if;
+    end process;
+
+end RTL;

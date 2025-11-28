@@ -1,7 +1,0 @@
-
-State Machine - |TopLevel|Show_random_vector:u_system|state
-Name state.DONE_STATE state.CLEAR_ALL state.SHOW_LED state.IDLE 
-state.IDLE 0 0 0 0 
-state.SHOW_LED 0 0 1 1 
-state.CLEAR_ALL 0 1 0 1 
-state.DONE_STATE 1 0 0 1 
