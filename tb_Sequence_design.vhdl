@@ -68,6 +68,18 @@ begin
         wait for CLK_PERIOD;
         start <= '0';
 
+        wait for 3 us;
+
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+
+        wait for 3140 ns;
+
+        start <= '1';
+        wait for CLK_PERIOD;
+        start <= '0';
+
         -- Espera o processamento completo
         wait until show_done = '1' for 200000 ns; 
         
