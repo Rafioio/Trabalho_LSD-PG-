@@ -30,7 +30,7 @@ architecture sim of tb_Sequence_design is
     signal start      : std_logic := '0';
     signal leds_out   : std_logic_vector(20 downto 0);  
     signal ready_out  : std_logic;
-    signal show_done  : std_logic;
+    signal reorder_done  : std_logic;
 
 begin
 
@@ -41,7 +41,7 @@ begin
             start     => start,
             ready_out => ready_out,    
             leds_out  => leds_out,     
-            show_done => show_done     
+            reorder_done => reorder_done     
         );
 
     clk_process : process
@@ -66,23 +66,17 @@ begin
         start <= '1';
         wait for CLK_PERIOD;
         start <= '0';
-
-        wait for 3 us;
-
-        start <= '1';
-        wait for CLK_PERIOD;
-        start <= '0';
-
-        wait for 3140 ns;
+        wait for 300 ns;
 
         start <= '1';
         wait for CLK_PERIOD;
         start <= '0';
+
 
         -- Espera o processamento completo
-        wait until show_done = '1' for 200000 ns; 
+        wait until reorder_done = '1' for 200000 ns; 
         
-        if show_done = '1' then
+        if reorder_done = '1' then
             report "Processamento completo!";
             report "LEDs finais: " & slv_to_string(leds_out);
         else

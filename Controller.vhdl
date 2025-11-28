@@ -10,10 +10,8 @@ entity Controller is
         -- sinais de módulos
         indice_ready  : in  std_logic;
         reorder_ready : in  std_logic;
-        show_done     : in  std_logic;
 
         -- sinais de controle
-        start_show    : out std_logic;
         fsm_off       : out std_logic;
         load_seed     : out std_logic;
         enable_lfsr   : out std_logic;
@@ -28,7 +26,6 @@ architecture rtl of Controller is
         S_LOAD_SEED,
         S_RUN_LFSR,
         S_REORDER,
-        S_SHOW,
         S_DONE
     );
 
@@ -60,12 +57,11 @@ begin
     -------------------------------------------------------------------
     -- Processo combinacional: próximo estado + saídas
     -------------------------------------------------------------------
-    process(state, start_rise, indice_ready, reorder_ready, show_done)
+    process(state, start_rise, indice_ready, reorder_ready)
     begin
         -- valores padrão
         load_seed    <= '0';
         enable_lfsr  <= '0';
-        start_show   <= '0';
         global_ready <= '0';
         fsm_off      <= '0';
 
@@ -94,17 +90,9 @@ begin
 
             when S_REORDER =>
                 if reorder_ready = '1' then
-                    start_show <= '1'; -- pulso para iniciar o show
-                    next_state <= S_SHOW;
-                else
-                    next_state <= S_REORDER;
-                end if;
-
-            when S_SHOW =>
-                if show_done = '1' then
                     next_state <= S_DONE;
                 else
-                    next_state <= S_SHOW;
+                    next_state <= S_REORDER;
                 end if;
 
             when S_DONE =>

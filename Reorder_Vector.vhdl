@@ -26,23 +26,21 @@ architecture rtl of Reorder_Vector is
     signal next_base  : std_logic_vector(20 downto 0);
     signal next_ready : std_logic;
 
-    -- variável auxiliar
+    -- Função auxiliar para extrair 3 bits
     function get_3bits(vec : std_logic_vector(20 downto 0); i : integer) return std_logic_vector is
-        variable res : std_logic_vector(2 downto 0);
     begin
-        res := vec(3*i+2 downto 3*i);
-        return res;
+        return vec(3*i+2 downto 3*i);
     end function;
 
-    procedure set_3bits_var(
-        variable vec : inout std_logic_vector(20 downto 0);
-        i            : integer;
-        val          : std_logic_vector(2 downto 0)
+    -- Procedimento auxiliar para definir 3 bits
+    procedure set_3bits(
+        signal vec : out std_logic_vector(20 downto 0);
+        constant i : in integer;
+        constant val : in std_logic_vector(2 downto 0)
     ) is
     begin
-        vec(3*i+2 downto 3*i) := val;
+        vec(3*i+2 downto 3*i) <= val;
     end procedure;
-
 
 begin
 
@@ -58,15 +56,23 @@ begin
 
         if enable = '1' then
             for i in 0 to 6 loop
-                idx := to_integer(unsigned(get_3bits(indice_vector, i))) - 1;
-
+                -- Extrai o índice (3 bits) e converte para integer
+                idx := to_integer(unsigned(get_3bits(indice_vector, i)));
+                
+                -- Ajusta o índice para começar de 0 (se necessário)
+                -- Se os índices vão de 1-7, subtrai 1
+                if idx > 0 then
+                    idx := idx - 1;
+                end if;
+                
+                -- Verifica se o índice está dentro do range válido
                 if idx >= 0 and idx <= 6 then
-                    set_3bits_var(temp_base, i, get_3bits(current_base, idx));
+                    temp_base(3*i+2 downto 3*i) := get_3bits(current_base, idx);
                 else
-                    set_3bits_var(temp_base, i, "000");
+                    temp_base(3*i+2 downto 3*i) := "000"; -- valor padrão em caso de erro
                 end if;
             end loop;
-
+            
             next_ready <= '1';
         end if;
 
@@ -85,12 +91,11 @@ begin
                 ready_reg    <= '0';
             else
                 current_base <= next_base;
-
+                ready_reg    <= next_ready;
+                
                 if enable = '1' then
                     random_reg <= next_base;
                 end if;
-
-                ready_reg <= next_ready;
             end if;
         end if;
     end process;

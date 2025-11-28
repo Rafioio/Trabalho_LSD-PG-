@@ -9,7 +9,7 @@ entity Sequence_design is
         start      : in  std_logic;
         ready_out  : out std_logic;
         leds_out   : out std_logic_vector(20 downto 0);
-        show_done  : out std_logic
+        reorder_done  : out std_logic
     );
 end Sequence_design;
 
@@ -35,11 +35,6 @@ architecture rtl of Sequence_design is
     signal random_vector   : std_logic_vector (20 downto 0);
     signal reorder_ready   : std_logic;
 
-    -- Show module outputs
-    signal start_show      : std_logic;
-    signal show_done_i     : std_logic;
-    signal show_leds       : std_logic_vector(6 downto 0);
-
 begin
 
     ------------------------------------------------------------------
@@ -52,8 +47,6 @@ begin
             start         => start,
             indice_ready  => indice_ready,
             reorder_ready => reorder_ready,
-            show_done     => show_done_i,
-            start_show    => start_show,
             fsm_off       => fsm_off,
             load_seed     => load_seed,
             enable_lfsr   => enable_lfsr,
@@ -98,27 +91,11 @@ begin
             random_vector => random_vector,
             ready         => reorder_ready
         );
-
-    ------------------------------------------------------------------
-    -- SHOW RANDOM VECTOR
-    ------------------------------------------------------------------
-    show_inst : entity work.Show_random_vector
-        generic map (
-            DELAY_CYCLES => 30
-        )
-        port map (
-            clk           => clk,
-            rst           => rst,
-            start_show    => start_show,
-            random_vector => random_vector,  -- agora de 21 bits
-            led_sel       => show_leds,
-            done          => show_done_i
-        );
-
     ------------------------------------------------------------------
     -- FINAL OUTPUTS
     ------------------------------------------------------------------
-    leds_out <= show_leds;
-    show_done <= show_done_i;
+
+    leds_out <= random_vector;
+    reorder_done <= reorder_ready;
 
 end rtl;
